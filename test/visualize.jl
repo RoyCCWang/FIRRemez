@@ -74,7 +74,7 @@ function packagefiltersolution(𝓧_new,
                                 savefig_flag::Bool,
                                 plot_flag::Bool)
 
-##
+
     @time c,ν, discrepancy, xq, yq_bary, yq_cheby = BarycentrictoChebyshev(𝓧_new, wfunc, dfunc, filter_type_num)
     println("conversion discrepany between barycenter and Chebyshev is ", discrepancy)
 
@@ -293,47 +293,4 @@ function packagefiltersolution(𝓧_new,
     end
 
     return h, fig_num
-end
-
-
-function getfreqrsp(h::Vector{Float64}, resolution_multiple::Int = 20)
-    N_samples = length(h)
-
-    ω_set_fft = collect( LinRange(0,2*π-2*π/N_samples,N_samples))
-    DFT_evals = fft(h)
-
-    ω_set = collect( LinRange(0,2*π,N_samples*resolution_multiple) )
-    DTFT_evals = collect( computeDTFTviaformula(h,ω_set[i]) for i = 1:length(ω_set) )
-
-    return ω_set_fft, DFT_evals, ω_set, DTFT_evals
-end
-
-function plotmagnitudersp(h::Vector{Float64}, fig_num::Int, title_string::String = "Magnitude response")
-
-    ω_set_fft, DFT_evals, ω_set, DTFT_evals = getfreqrsp(h)
-
-    # visualize.
-    mag_rsp_G = abs.(DTFT_evals)
-    mag_rsp_fft = abs.(DFT_evals)
-
-
-    PyPlot.figure(fig_num)
-    fig_num += 1
-
-    PyPlot.plot(ω_set_fft, mag_rsp_fft, ".", label = "DFT")
-    PyPlot.plot(ω_set, mag_rsp_G, label = "DTFT")
-
-    PyPlot.title(title_string)
-    PyPlot.legend()
-
-
-    # if savefig_flag
-    #     save_name = Printf.@sprintf("./outputs/type_%s_solution_magnitude_rsp.png",
-    #                                     filter_type_num)
-    #     PyPlot.savefig(save_name)
-    #     sleep(save_delay)
-    #     PyPlot.close(fig_num)
-    # end
-
-    return fig_num
 end

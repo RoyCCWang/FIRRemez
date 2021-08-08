@@ -18,27 +18,46 @@ Random.seed!(25)
 
 fig_num = 1
 
-#L = 25 # change this.
-L = 1000
+
+L = 25
+#L = 1000
+if length(ARGS) > 1
+    L = tryparse(Int, ARGS[1])
+end
+
 
 ## low-pass.
 passband_ω_Float64 = 0.025*π # change this.
-passband_ω = convert(BigFloat, passband_ω_Float64)
+if length(ARGS) > 2
+    passband_ω_Float64 = tryparse(Float64, ARGS[2])
+end
 
 stopband_ω_Float64 = 0.025*2*π # change this.
+if length(ARGS) > 3
+    stopband_ω_Float64 = tryparse(Float64, ARGS[3])
+end
+
+save_name_tag = "lowpass"
+if length(ARGS) > 4
+    save_name_tag = ARGS[4]
+end
+
+passband_ω = convert(BigFloat, passband_ω_Float64)
 stopband_ω = convert(BigFloat, stopband_ω_Float64)
 
 f = xx->FIRRemez.cosinetransitionlowpassfunction(xx,passband_ω,stopband_ω)
-save_name_tag = "lowpass"
+
 
 println("passband is ", passband_ω)
 println("stopband is ", stopband_ω)
 
 filter_type_num = 1 # symmetric, odd length.
 
+
 savefig_flag = false
 plot_output_flag = false
 
+output_folder = "./output"
 opt_params_file_name = "../default/config_opt.txt" # location of the configuration file.
 
 # omit opt_params_file_name is using default configuration file provided by the package.
@@ -58,9 +77,10 @@ save_name = Printf.@sprintf("type%d_%s_L%d_%s.jld", filter_type_num,
                                                     band_info_string)
 passband = passband_ω_Float64
 stopband = stopband_ω_Float64
-FileIO.save(save_name,  "h", h,
-                        "X", X,
-                        "passband", passband,
-                        "stopband", stopband)
+FileIO.save(joinpath(output_folder, save_name),
+    "h", h,
+    "X", X,
+    "passband", passband,
+    "stopband", stopband)
 
-fig_num = VisualizationTools.plotmagnitudersp(h, fig_num, "filter's magnitude response")
+fig_num = FIRRemez.plotmagnitudersp(h, fig_num, "filter's magnitude response")

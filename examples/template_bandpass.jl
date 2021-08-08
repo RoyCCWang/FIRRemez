@@ -111,4 +111,4 @@ BSON.bson(save_name,  filter_coeffs = h,
                         falling_stopband_angular = fs_ω_Float64)
 
 import VisualizationTools
-fig_num = VisualizationTools.plotmagnitudersp(h, fig_num, "filter's magnitude response")
+fig_num = FIRRemez.plotmagnitudersp(h, fig_num, "filter's magnitude response")

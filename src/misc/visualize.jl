@@ -16,6 +16,18 @@ function visualizefiltersolution(𝓧, xq, wfunc, dfunc,f)
     return f_itp_xq, f_itp_𝓧, 𝑒_xq, 𝑒_𝓧
 end
 
+function getfreqrsp(h::Vector{Float64}, resolution_multiple::Int = 20)
+    N_samples = length(h)
+
+    ω_set_fft = collect( LinRange(0,2*π-2*π/N_samples,N_samples))
+    DFT_evals = fft(h)
+
+    ω_set = collect( LinRange(0,2*π,N_samples*resolution_multiple) )
+    DTFT_evals = collect( computeDTFTviaformula(h,ω_set[i]) for i = 1:length(ω_set) )
+
+    return ω_set_fft, DFT_evals, ω_set, DTFT_evals
+end
+
 function plotmagnitudersp(h::Vector{Float64}, fig_num::Int, title_string::String = "Magnitude response")
 
     ω_set_fft, DFT_evals, ω_set, DTFT_evals = getfreqrsp(h)

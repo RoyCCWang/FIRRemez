@@ -13,8 +13,8 @@ import Printf
 import VisualizationTools
 
 using FFTW
-import JLD
-#import BSON
+#import JLD
+import BSON
 
 fig_num = 1
 PyPlot.close("all")
@@ -68,10 +68,21 @@ save_name = Printf.@sprintf("type%d_%s_L%d_%s.bson",
 
 passband = passband_ω_Float64
 stopband = stopband_ω_Float64
-# BSON.bson(joinpath(output_folder, save_name),
-#     h = h, X = X, passband = passband, stopband = stopband)
-FileIO.save(joinpath(output_folder, save_name),
-    "h" = h, "X" = X, "passband" = passband, "stopband" = stopband)
+BSON.bson(joinpath(output_folder, save_name),
+    h = h, X = X, passband = passband, stopband = stopband)
+#JLD.save(joinpath(output_folder, save_name), "h" = h, "X" = X, "passband" = passband, "stopband" = stopband)
+#
+save_name = Printf.@sprintf("type%d_%s_L%d_%s.xlsx",
+    filter_type_num, save_name_tag, L, band_info_string)
+XLSX.openxlsx(joinpath(output_folder, save_name), mode="w") do xf
+    sheet = xf[1]
+    XLSX.rename!(sheet, "filter")
+
+    sheet["A1", dim = 1] = ["passband"; passband]
+    sheet["B1", dim = 1] = ["passband"; passband]
+    sheet["C1", dim = 1] = ["Chebyshev node positions"; X]
+    sheet["D1", dim = 1] = ["coefficients"; h]
+end
 
 println("Plotting")
 @time fig_num = FIRRemez.plotmagnitudersp(h, fig_num, "filter's magnitude response")

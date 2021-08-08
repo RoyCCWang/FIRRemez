@@ -1,7 +1,7 @@
 import os
 import h5py
 
-filename = "filter_passband_0.314159_stopband_0.628319_25.jld"
+filename = "./output/type1_lowpass_L200_passband_0.049530_stopband_0.068280.jld"
 f = h5py.File(filename, 'r')
 
 h = f['h'].value
