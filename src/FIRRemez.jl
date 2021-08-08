@@ -42,6 +42,10 @@ export frontendoptimization, visualizeoptimzationsolution,
         MiniMaxConfigType,
         Barycentric2nditp,
         frontendfilterdesign,
-        getp
+        getp,
+
+        # visualization.
+        plotmagnitudersp,
+        visualizefiltersolution
 
 end

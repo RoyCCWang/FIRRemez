@@ -14,7 +14,7 @@ import VisualizationTools
 
 using FFTW
 import JLD
-
+#import BSON
 
 fig_num = 1
 PyPlot.close("all")
@@ -23,7 +23,9 @@ Random.seed!(25)
 
 fig_num = 1
 
-L = 1000 # change this.
+output_folder = "./output"
+#L = 1000 # change this.
+L = 200 # change this.
 
 # try 1
 #𝑟0 = 0.00625*2 # relative central transition band freq, in rads, but /π.
@@ -61,19 +63,18 @@ X = convert(Vector{Float64}, X_BigFloat)
 Printf.@printf("Order of Chebyshev is %d, length of filter is %d, FIR type %d\n", L, length(h), filter_type_num)
 
 band_info_string = Printf.@sprintf("passband_%f_stopband_%f", passband_ω_Float64, stopband_ω_Float64)
-save_name = Printf.@sprintf("type%d_%s_L%d_%s.jld", filter_type_num,
-                                                    save_name_tag,
-                                                    L,
-                                                    band_info_string)
+save_name = Printf.@sprintf("type%d_%s_L%d_%s.bson",
+    filter_type_num, save_name_tag, L, band_info_string)
+
 passband = passband_ω_Float64
 stopband = stopband_ω_Float64
-FileIO.save(save_name,  "h", h,
-                        "X", X,
-                        "passband", passband,
-                        "stopband", stopband)
+# BSON.bson(joinpath(output_folder, save_name),
+#     h = h, X = X, passband = passband, stopband = stopband)
+FileIO.save(joinpath(output_folder, save_name),
+    "h" = h, "X" = X, "passband" = passband, "stopband" = stopband)
 
 println("Plotting")
-@time fig_num = VisualizationTools.plotmagnitudersp(h, fig_num, "filter's magnitude response")
+@time fig_num = FIRRemez.plotmagnitudersp(h, fig_num, "filter's magnitude response")
 
 # this was the output on threadripper.
 # Reference set no longer changing.
