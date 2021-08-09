@@ -104,20 +104,6 @@ end
 mag_rsp_G = abs.(DTFT_evals)
 mag_rsp_fft = abs.(DFT_evals)
 
-@assert 4==5
-
-# TODO
-# - make sure running julia script in REPL, ARGS is empty.
-# - what's up with computeDTFTviaformula().
-# - make sure plot exports to HTML via Plotly().
-# - figure out the order number vs. taps vs. L.
-#   2.2.3 of https://tel.archives-ouvertes.fr/tel-01447081/document
-#   make sure the Type 1 is verified.
-
-# - export KRSurrogate ASAP. commandline pass custom (small) image,
-#   or pass function in specialized file. non-adaptive kernels.
-#   focus on write up the inverse solve.
-
 plot_obj = Plots.plot( ω_set_fft,
 mag_rsp_fft,
 title = "Magnitude spectrum",
