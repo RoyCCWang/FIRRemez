@@ -1,4 +1,7 @@
 
+using Distributed
+using SharedArrays
+
 @everywhere import FIRRemez
 @everywhere import PyPlot
 @everywhere import Random
@@ -8,8 +11,9 @@ import FileIO
 import Printf
 
 using FFTW
-import JLD
-
+#import JLD
+import XLSX
+import BSON
 
 fig_num = 1
 PyPlot.close("all")
@@ -71,16 +75,64 @@ X = convert(Vector{Float64}, X_BigFloat)
 Printf.@printf("Order of Chebyshev is %d, length of filter is %d, FIR type %d\n", L, length(h), filter_type_num)
 
 band_info_string = Printf.@sprintf("passband_%f_stopband_%f", passband_ω_Float64, stopband_ω_Float64)
-save_name = Printf.@sprintf("type%d_%s_L%d_%s.jld", filter_type_num,
-                                                    save_name_tag,
-                                                    L,
-                                                    band_info_string)
+save_name = Printf.@sprintf("type%d_%s_L%d_%s.bson",
+    filter_type_num, save_name_tag, L, band_info_string)
+
 passband = passband_ω_Float64
 stopband = stopband_ω_Float64
-FileIO.save(joinpath(output_folder, save_name),
-    "h", h,
-    "X", X,
-    "passband", passband,
-    "stopband", stopband)
 
-fig_num = FIRRemez.plotmagnitudersp(h, fig_num, "filter's magnitude response")
+BSON.bson(joinpath(output_folder, save_name),
+    h = h, X = X, passband = passband, stopband = stopband)
+#JLD.save(joinpath(output_folder, save_name), "h" = h, "X" = X, "passband" = passband, "stopband" = stopband)
+#
+save_name = Printf.@sprintf("type%d_%s_L%d_%s.xlsx",
+    filter_type_num, save_name_tag, L, band_info_string)
+XLSX.openxlsx(joinpath(output_folder, save_name), mode="w") do xf
+    sheet = xf[1]
+    XLSX.rename!(sheet, "filter")
+
+    sheet["A1", dim = 1] = ["passband"; passband]
+    sheet["B1", dim = 1] = ["passband"; passband]
+    sheet["C1", dim = 1] = ["Chebyshev node positions"; X]
+    sheet["D1", dim = 1] = ["coefficients"; h]
+end
+
+#fig_num = FIRRemez.plotmagnitudersp(h, fig_num, "filter's magnitude response")
+
+ω_set_fft, DFT_evals, ω_set, DTFT_evals = FIRRemez.getfreqrsp(h)
+
+mag_rsp_G = abs.(DTFT_evals)
+mag_rsp_fft = abs.(DFT_evals)
+
+@assert 4==5
+
+# TODO
+# - make sure running julia script in REPL, ARGS is empty.
+# - what's up with computeDTFTviaformula().
+# - make sure plot exports to HTML via Plotly().
+# - figure out the order number vs. taps vs. L.
+#   2.2.3 of https://tel.archives-ouvertes.fr/tel-01447081/document
+#   make sure the Type 1 is verified.
+
+# - export KRSurrogate ASAP. commandline pass custom (small) image,
+#   or pass function in specialized file. non-adaptive kernels.
+#   focus on write up the inverse solve.
+
+plot_obj = Plots.plot( ω_set_fft,
+mag_rsp_fft,
+title = "Magnitude spectrum",
+label = "DFT",
+seriestype = :line,
+ticks = :native,
+hover = ω_set_fft,
+linewidth = 4,
+size = (1200, 900))
+
+Plots.plot!(plot_obj, ω_set, mag_rsp_G, label = "DTFT",
+seriestype = :line,
+linestyle = :dash,
+linewidth = 4)
+
+save_name = Printf.@sprintf("type%d_%s_L%d_%s.html",
+    filter_type_num, save_name_tag, L, band_info_string)
+Plots.savefig(plot_obj, joinpath(output_folder, save_name))

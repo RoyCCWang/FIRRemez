@@ -16,6 +16,16 @@ function visualizefiltersolution(𝓧, xq, wfunc, dfunc,f)
     return f_itp_xq, f_itp_𝓧, 𝑒_xq, 𝑒_𝓧
 end
 
+function computeDTFTviaformula(h::AbstractArray{T}, ω::T)::Complex{T} where T <: Real
+    N = length(h)
+    return sum( h[n+1]*exp(-im*ω*n) for n = 0:N-1 )
+end
+
+function computeDTFTviaformula(h::AbstractArray{T}, ω::Vector{T}) where T
+
+    return collect( computeDTFTviaformula(h, ω[i]) for i = 1:length(ω))
+end
+
 function getfreqrsp(h::Vector{Float64}, resolution_multiple::Int = 20)
     N_samples = length(h)
 
@@ -23,7 +33,7 @@ function getfreqrsp(h::Vector{Float64}, resolution_multiple::Int = 20)
     DFT_evals = fft(h)
 
     ω_set = collect( LinRange(0,2*π,N_samples*resolution_multiple) )
-    DTFT_evals = collect( computeDTFTviaformula(h,ω_set[i]) for i = 1:length(ω_set) )
+    DTFT_evals = collect( computeDTFTviaformula(h, ω_set[i]) for i = 1:length(ω_set) )
 
     return ω_set_fft, DFT_evals, ω_set, DTFT_evals
 end
