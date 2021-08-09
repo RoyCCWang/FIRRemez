@@ -19,12 +19,6 @@ Make sure the XLSX.jl and BSON.jl packages are installed. They are used to save 
 
 Navigate to the `./examples` folder using the linux terminal. Here is an example of the syntax for running `template_lowpass.jl`:
 To use 15 parallel processes to solve for a mini-max lowpass filter with cosine transition, order 200, pass band 0.025π rad, stop band 0.05π rad, run `julia -p 15 template_lowpass.jl 200 0.07853981633974483 0.15707963267948966`
+This command took a few minutes to run on a 16-core AMD ThreadRipper 1950X system.
 
 Informally speaking, the number of processes should be less than the number of physical double-precision floating-point cores on your CPU.
-
-## Future plans
-- types 2 to 4 FIR mini-max design algorithms.
-- more variety of transition bands.
-- allow command line passing of the target magnitude response function.
-- FIR filters by windowing.
-- very large order FIR filters as implemented by Richard Lyon's book, also featured here: https://www.embedded.com/designing-high-order-fir-filters/

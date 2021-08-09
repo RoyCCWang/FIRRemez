@@ -99,6 +99,9 @@ end
 
 #fig_num = FIRRemez.plotmagnitudersp(h, fig_num, "filter's magnitude response")
 
+import Plots
+Plots.plotly()
+
 ω_set_fft, DFT_evals, ω_set, DTFT_evals = FIRRemez.getfreqrsp(h)
 
 mag_rsp_G = abs.(DTFT_evals)
